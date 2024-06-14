@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SSO</title>
+
+  </head>
+  <body>
+    <a href="<%- `${env.DIRECTUS_URL}/auth/login/openid?redirect=${env.PUBLIC_URL}` %>">Login</button>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "axios": "https://unpkg.com/axios/dist/esm/axios.min.js",
+          "@directus/sdk": "https://unpkg.com/@directus/sdk",
+          "@directus/system-data": "https://unpkg.com/@directus/system-data"
+        }
+      }
+    </script>
+
+
+    <script type="module">
+      import * as directus from "@directus/sdk";
+      import axios from "axios";
+
+      const env = JSON.parse('<%- JSON.stringify(env) %>')
+      const backend = axios.create({baseURL: env.PUBLIC_URL })
+
+      async function start() {
+        const client = directus.createDirectus(env.DIRECTUS_URL)
+          .with(directus.authentication("cookie", { credentials: "include" }))
+          .with(directus.rest());
+
+          const result = await client.request(
+            directus.withOptions(directus.refresh('cookie'), { credentials: 'include' })
+          );
+
+          const me = await directus.request(directus.readMe()); // Retrieve data on client
+
+          // Or pass access_token to server and make requests on server side
+          await backend.post('/login', { token: result.access_token })
+      }
+
+      start();
+    </script>
+  </body>
+</html>

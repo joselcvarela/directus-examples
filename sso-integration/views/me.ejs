@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello <%- user.first_name %></title>
+
+  </head>
+  <body>
+    <h1>Hello <%- user.first_name %> <%- user.last_name %></h1>
+
+    <form action="/update-me" method="post">
+      <input type="text" name="first_name" placeholder="<%- user.first_name %>" />
+      <input type="text" name="last_name" placeholder="<%- user.last_name %>" />
+      <button>Save</button>
+    </form>
+
+  </body>
+</html>
