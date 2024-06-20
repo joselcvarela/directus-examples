@@ -8,33 +8,39 @@ const token = ref("");
 const collection = ref("");
 const uploading = ref(false);
 const message = ref("");
+const error = ref("");
 const type = ref<"big-csv" | "multiple-json">("big-csv");
 
 async function send(form: HTMLFormElement) {
-  message.value = "Uploading ⏳";
-  uploading.value = true;
+  try {
+    message.value = "Uploading ⏳";
+    uploading.value = true;
 
-  const upload = useUpload(url.value, collection.value, token.value);
+    const upload = useUpload(url.value, collection.value, token.value);
 
-  if (type.value === "big-csv") {
-    const fileInput = form.elements.namedItem("file") as HTMLInputElement;
-    if (!fileInput.files?.length) {
-      return (message.value = "No file selected 🤷");
+    if (type.value === "big-csv") {
+      const fileInput = form.elements.namedItem("file") as HTMLInputElement;
+      if (!fileInput.files?.length) {
+        return (message.value = "No file selected 🤷");
+      }
+
+      await upload.uploadBigCsv(fileInput.files[0]);
+    } else if (type.value === "multiple-json") {
+      const folderInput = form.elements.namedItem("folder") as HTMLInputElement;
+      if (!folderInput.files?.length) {
+        return (message.value = "No file selected 🤷");
+      }
+
+      await upload.uploadJsonFiles(folderInput.files);
     }
 
-    await upload.uploadBigCsv(fileInput.files[0]);
-  } else if (type.value === "multiple-json") {
-    const folderInput = form.elements.namedItem("folder") as HTMLInputElement;
-    if (!folderInput.files?.length) {
-      return (message.value = "No file selected 🤷");
-    }
-
-    await upload.uploadJsonFiles(folderInput.files);
+    message.value = "Done ✅";
+  } catch (err) {
+    error.value = JSON.stringify(err);
+    message.value = "⚠️ Error!";
+  } finally {
+    uploading.value = false;
   }
-
-  uploading.value = true;
-
-  message.value = "Done ✅";
 }
 </script>
 
