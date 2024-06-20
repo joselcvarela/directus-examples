@@ -5,7 +5,12 @@ import vue from "@vitejs/plugin-vue";
 export default defineConfig({
   base:
     process.env.NODE_ENV === "production"
-      ? "/directus-examples/upload-big-csv/dist"
+      ? "/directus-examples/import-files/dist"
       : "/",
+  root: "src",
+  build: {
+    outDir: "../dist",
+    emptyOutDir: true,
+  },
   plugins: [vue()],
 });

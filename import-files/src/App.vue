@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useUpload } from "./composables/useUpload";
 import help from "../README.md?raw";
 
 const url = ref("http://localhost:8055");
@@ -7,63 +8,33 @@ const token = ref("");
 const collection = ref("");
 const uploading = ref(false);
 const message = ref("");
+const type = ref<"big-csv" | "multiple-json">("big-csv");
 
 async function send(form: HTMLFormElement) {
-  const fileInput = form.elements.namedItem("file") as HTMLInputElement;
-  if (!fileInput.files?.length) return (message.value = "No file selected 🤷");
-
   message.value = "Uploading ⏳";
   uploading.value = true;
 
-  const file = fileInput.files[0];
-  const stream = file.stream();
-  const decoder = new TextDecoder("utf-8");
+  const upload = useUpload(url.value, collection.value, token.value);
 
-  let first = false;
-  let headers = "";
-  let remainder = "";
-
-  for await (const chunk of stream) {
-    let text = remainder + decoder.decode(chunk, { stream: true });
-
-    if (!first) {
-      first = true;
-      const indexOfBr = text.search(/\r\n|\n/);
-      headers = text.substring(0, indexOfBr + 1);
-      text = text.substring(indexOfBr + 1);
+  if (type.value === "big-csv") {
+    const fileInput = form.elements.namedItem("file") as HTMLInputElement;
+    if (!fileInput.files?.length) {
+      return (message.value = "No file selected 🤷");
     }
 
-    const indexOfBr = text.search(/\r\n|\n.*?$/);
+    await upload.uploadBigCsv(fileInput.files[0]);
+  } else if (type.value === "multiple-json") {
+    const folderInput = form.elements.namedItem("folder") as HTMLInputElement;
+    if (!folderInput.files?.length) {
+      return (message.value = "No file selected 🤷");
+    }
 
-    remainder = text.substring(indexOfBr);
-    text = text.substring(0, indexOfBr + 1);
-
-    const mockFile = new Blob([headers, text], { type: "text/csv" });
-
-    const formData = new FormData();
-    formData.append("file", mockFile);
-
-    await fetch(
-      new URL(`/utils/import/${collection.value.trim()}`, url.value.trim()),
-      {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${token.value.trim()}`,
-        },
-      }
-    );
-
-    await sleep();
+    await upload.uploadJsonFiles(folderInput.files);
   }
 
   uploading.value = true;
 
   message.value = "Done ✅";
-}
-
-function sleep(timeout = 1000) {
-  return new Promise((res) => setTimeout(res, timeout));
 }
 </script>
 
@@ -71,9 +42,18 @@ function sleep(timeout = 1000) {
   <div class="upload-file">
     <form @submit.prevent="send($refs.form as HTMLFormElement)" ref="form">
       <label>
+        <span>type</span>
+        <select v-model="type">
+          <option>big-csv</option>
+          <option>multiple-json</option>
+        </select>
+      </label>
+
+      <label>
         <span>url</span>
         <input type="text" name="url" placeholder="url" v-model="url" />
       </label>
+
       <label>
         <span>token</span>
         <input
@@ -84,6 +64,7 @@ function sleep(timeout = 1000) {
           v-model="token"
         />
       </label>
+
       <label>
         <span>collection</span>
         <input
@@ -93,10 +74,17 @@ function sleep(timeout = 1000) {
           v-model="collection"
         />
       </label>
-      <label>
-        <span>csv</span>
+
+      <label v-if="type === 'big-csv'">
+        <span>csv file</span>
         <input type="file" name="file" />
       </label>
+
+      <label v-else-if="type === 'multiple-json'">
+        <span>json files</span>
+        <input type="file" multiple name="folder" />
+      </label>
+
       <button :disabled="uploading">Send</button>
       <p v-if="message">{{ message }}</p>
     </form>
