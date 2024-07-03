@@ -1,0 +1,1 @@
+html,body{height:100%}body{display:flex;justify-content:center;align-items:center}#app{display:flex;flex-direction:column;gap:.5rem;min-width:60%}input{width:100%}.scroll{max-height:25rem}.online{color:#00ff7f}.offline{color:#ff4500}
