@@ -1,18 +1,15 @@
 import { defineHook } from "@directus/extensions-sdk";
 
-export default defineHook(({ init }, context) => {
-  const { services, getSchema } = context;
-  const { UsersService } = services;
-
+export default defineHook(({ init }) => {
   init("middlewares.after", (app) => {
     app.use(async (req, res, next) => {
-      const schema = req.schema || (await getSchema());
-      const usersService = new UsersService({ schema });
+      if (!req.token) next();
 
-      const user = usersService.readOne(req.accountability?.id);
-
-      if (user && user.token && req.token === user.token)
+      const decoded = Buffer.from(req.token, "base64").toString("utf-8");
+      if (!decoded || !decoded.includes("HS256") || !decoded.includes("JWT")) {
+        // Is not a JWT string so it's a static token
         return res.send(401).end();
+      }
 
       return next();
     });
