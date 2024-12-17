@@ -10,13 +10,19 @@ const uploading = ref(false);
 const message = ref("");
 const error = ref("");
 const type = ref<"big-csv" | "multiple-json">("big-csv");
+const sleepTime = ref(5000);
 
 async function send(form: HTMLFormElement) {
   try {
     message.value = "Uploading ⏳";
     uploading.value = true;
 
-    const upload = useUpload(url.value, collection.value, token.value);
+    const upload = useUpload(
+      url.value,
+      sleepTime.value,
+      collection.value,
+      token.value
+    );
 
     if (type.value === "big-csv") {
       const fileInput = form.elements.namedItem("file") as HTMLInputElement;
@@ -78,6 +84,18 @@ async function send(form: HTMLFormElement) {
           name="collection"
           placeholder="collection"
           v-model="collection"
+        />
+      </label>
+
+      <label>
+        <span>wait time between uploads (ms)</span>
+        <input
+          type="number"
+          name="sleep"
+          placeholder="delay"
+          min="1000"
+          step="100"
+          v-model="sleepTime"
         />
       </label>
 

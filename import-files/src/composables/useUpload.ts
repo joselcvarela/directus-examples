@@ -1,4 +1,9 @@
-export function useUpload(url: string, collection: string, token: string) {
+export function useUpload(
+  url: string,
+  sleepTime: number,
+  collection: string,
+  token: string
+) {
   url = url.trim();
   collection = collection.trim();
   token = token.trim();
@@ -44,7 +49,7 @@ export function useUpload(url: string, collection: string, token: string) {
         },
       });
 
-      await sleep();
+      await sleep(sleepTime);
     }
   }
 
@@ -68,7 +73,7 @@ export function useUpload(url: string, collection: string, token: string) {
         },
       });
 
-      await sleep();
+      await sleep(sleepTime);
     }
   }
 }
