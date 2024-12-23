@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useStorage } from "@vueuse/core";
 import { useUpload } from "./composables/useUpload";
 import help from "../README.md?raw";
+
+const TYPES = Object.freeze({
+  BIG_CSV: "big-csv",
+  MULTIPLE_JSON: "multiple-json",
+});
 
 const url = useStorage("import-files:url", "http://localhost:8055");
 const token = ref("");
 const collection = useStorage("import-files:collection", "");
 const sleepTime = useStorage("import-files:sleep_time", 5000);
-const type = useStorage<"big-csv" | "multiple-json">(
+const type = useStorage<(typeof TYPES)[keyof typeof TYPES]>(
   "import-files:type",
-  "big-csv"
+  TYPES.BIG_CSV
 );
 const uploading = ref(false);
 const message = ref("");
@@ -52,6 +57,9 @@ async function send(form: HTMLFormElement) {
     uploading.value = false;
   }
 }
+
+const isBigCsv = computed(() => type.value === TYPES.BIG_CSV);
+const isJsonFiles = computed(() => type.value === TYPES.MULTIPLE_JSON);
 </script>
 
 <template>
@@ -103,12 +111,12 @@ async function send(form: HTMLFormElement) {
         />
       </label>
 
-      <label v-if="type === 'big-csv'">
+      <label v-if="isBigCsv">
         <span>csv file</span>
         <input type="file" name="file" />
       </label>
 
-      <label v-else-if="type === 'multiple-json'">
+      <label v-else-if="isJsonFiles">
         <span>json files</span>
         <input type="file" multiple name="folder" />
       </label>
