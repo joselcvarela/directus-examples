@@ -55,25 +55,29 @@ export function useUpload(
 
   async function uploadJsonFiles(files: FileList) {
     for (const rawFile of files) {
-      const json = JSON.parse(await rawFile.text());
+      let text = await rawFile.text();
+      const json = JSON.parse(text);
+      text = "";
       const array = [].concat(json);
 
-      const mockFile = new Blob([JSON.stringify(array)], {
-        type: "application/json",
-      });
+      for (const entry of array) {
+        const mockFile = new Blob([JSON.stringify([].concat(entry))], {
+          type: "application/json",
+        });
 
-      const formData = new FormData();
-      formData.append("file", mockFile);
+        const formData = new FormData();
+        formData.append("file", mockFile);
 
-      await fetch(new URL(`/utils/import/${collection.trim()}`, url.trim()), {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${token.trim()}`,
-        },
-      });
+        await fetch(new URL(`/utils/import/${collection.trim()}`, url.trim()), {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${token.trim()}`,
+          },
+        });
 
-      await sleep(sleepTime);
+        await sleep(sleepTime);
+      }
     }
   }
 }

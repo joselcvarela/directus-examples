@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useStorage } from "@vueuse/core";
 import { useUpload } from "./composables/useUpload";
 import help from "../README.md?raw";
 
-const url = ref("http://localhost:8055");
+const url = useStorage("import-files:url", "http://localhost:8055");
 const token = ref("");
-const collection = ref("");
+const collection = useStorage("import-files:collection", "");
+const sleepTime = useStorage("import-files:sleep_time", 5000);
+const type = useStorage<"big-csv" | "multiple-json">(
+  "import-files:type",
+  "big-csv"
+);
 const uploading = ref(false);
 const message = ref("");
 const error = ref("");
-const type = ref<"big-csv" | "multiple-json">("big-csv");
-const sleepTime = ref(5000);
 
 async function send(form: HTMLFormElement) {
   try {
