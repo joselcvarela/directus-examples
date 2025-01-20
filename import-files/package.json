@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@directus/sdk": "^19.0.0",
     "@vueuse/core": "^12.2.0",
     "vue": "^3.4.21"
   },

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@directus/sdk':
+        specifier: ^19.0.0
+        version: 19.0.0
       '@vueuse/core':
         specifier: ^12.2.0
         version: 12.2.0(typescript@5.4.5)
@@ -63,6 +66,10 @@ packages:
   '@babel/types@7.26.3':
     resolution: {integrity: sha512-vN5p+1kl59GVKMvTHt55NzzmYVxprfJD+ql7U9NFIfKCBkYE55LYtS+WtPlaYOyzydrKI8Nezd+aZextrd+FMA==}
     engines: {node: '>=6.9.0'}
+
+  '@directus/sdk@19.0.0':
+    resolution: {integrity: sha512-PSp9ddJvR5Ty3dd6zB9iZ92mI26TnI/LqvhxjJsQgcWfSP3ev+UnS0ng+xkO8RKJWN9+5O62frWvyimH8oDd8Q==}
+    engines: {node: '>=22'}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -567,6 +574,8 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
+
+  '@directus/sdk@19.0.0': {}
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true

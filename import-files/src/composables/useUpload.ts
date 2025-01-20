@@ -1,3 +1,5 @@
+import { Directus } from "../utils/directus";
+
 export function useUpload(
   url: string,
   sleepTime: number,
@@ -7,6 +9,8 @@ export function useUpload(
   url = url.trim();
   collection = collection.trim();
   token = token.trim();
+
+  const directus = new Directus(url, token);
 
   return {
     uploadBigCsv,
@@ -36,18 +40,7 @@ export function useUpload(
       remainder = text.substring(indexOfBr);
       text = text.substring(0, indexOfBr + 1);
 
-      const mockFile = new Blob([headers, text], { type: "text/csv" });
-
-      const formData = new FormData();
-      formData.append("file", mockFile);
-
-      await fetch(new URL(`/utils/import/${collection.trim()}`, url.trim()), {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${token.trim()}`,
-        },
-      });
+      await directus.importCSV(collection, headers, text);
 
       await sleep(sleepTime);
     }
@@ -61,20 +54,7 @@ export function useUpload(
       const array = [].concat(json);
 
       for (const entry of array) {
-        const mockFile = new Blob([JSON.stringify([].concat(entry))], {
-          type: "application/json",
-        });
-
-        const formData = new FormData();
-        formData.append("file", mockFile);
-
-        await fetch(new URL(`/utils/import/${collection.trim()}`, url.trim()), {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${token.trim()}`,
-          },
-        });
+        await directus.importJSON(collection, entry);
 
         await sleep(sleepTime);
       }
