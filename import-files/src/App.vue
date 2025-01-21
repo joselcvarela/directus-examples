@@ -105,7 +105,7 @@ const isJsonFiles = computed(() => type.value === TYPES.MULTIPLE_JSON);
           type="number"
           name="sleep"
           placeholder="delay"
-          min="1000"
+          min="100"
           step="100"
           v-model="sleepTime"
         />
